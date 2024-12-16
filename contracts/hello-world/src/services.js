@@ -1,10 +1,7 @@
 const StellarSdk = require('stellar-sdk');
 const axios = require('axios');
-
-const serverUrl = 'https://destelloMovil-testnet.stellar.org';
 const sourceKeys = StellarSdk.Keypair.fromSecret('SCB2ROFEOMLUZD2PTFSOG5TICQ5KF4YBAWP66YHJWDAJ4QFREMZOP4DP');  
 const contractId = 'CA6J4RQXOQPYKNSKX4UATID4BSG7LTFLIRX7SQYT2SGDLF2FNHOZTLY3';  
-
 document.getElementById('addServiceBtn').addEventListener('click', addService);
 document.getElementById('deleteServiceBtn').addEventListener('click', deleteService);
 document.getElementById('updateServiceBtn').addEventListener('click', updateService);
