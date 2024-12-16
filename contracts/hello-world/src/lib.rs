@@ -1,66 +1,57 @@
 #![no_std]
 use soroban_sdk::{contract, contractimpl, symbol_short, vec, Env, String, Map, Vec};
-
 #[contract]
 pub struct Contract;
-
 #[contractimpl]
 impl Contract {
-    // Método para agregar un producto
-    pub fn add_product(env: Env, name: String, quantity: i32, price: i32) {
-        let key = symbol_short!("products");
-        let mut products: Map<String, Vec<i32>> = env.storage().persistent().get(&key).unwrap_or(Map::new(&env));
-        products.set(name.clone(), vec![&env, quantity, price]);
-        env.storage().persistent().set(&key, &products);
+    pub fn add_service(env: Env, name: String, price: i32, description: String) {
+        let key = symbol_short!("services");
+        let mut services: Map<String, Vec<String>> = env.storage().persistent().get(&key).unwrap_or(Map::new(&env));
+        services.set(name.clone(), vec![&env, price.to_string(&env), description]);
+        env.storage().persistent().set(&key, &services);
     }
-
-    // Método para obtener un producto
-    pub fn get_product(env: Env, name: String) -> Vec<i32> {
-        let key = symbol_short!("products");
-        let products: Map<String, Vec<i32>> = env.storage().persistent().get(&key).unwrap_or(Map::new(&env));
-        products.get(name).unwrap_or_else(|| vec![&env])
+ pub fn get_service(env: Env, name: String) -> Vec<String> {
+        let key = symbol_short!("services");
+        let services: Map<String, Vec<String>> = env.storage().persistent().get(&key).unwrap_or(Map::new(&env));
+        services.get(name).unwrap_or_else(|| vec![&env])
     }
-
-    // Método para obtener todos los productos
-    pub fn get_all_products(env: Env) -> Vec<(String, i32, i32)> {
-        let key = symbol_short!("products");
-        let products: Map<String, Vec<i32>> = env.storage().persistent().get(&key).unwrap_or(Map::new(&env));
+    pub fn get_all_services(env: Env) -> Vec<(String, i32, String)> {
+        let key = symbol_short!("services");
+        let services: Map<String, Vec<String>> = env.storage().persistent().get(&key).unwrap_or(Map::new(&env));
         let mut result = Vec::new(&env);
-        for (name, details) in products.iter() {
+        for (name, details) in services.iter() {
             if details.len() == 2 {
-                result.push_back((name.clone(), details.get(0).unwrap(), details.get(1).unwrap()));
+                let price = details.get(0).unwrap().parse::<i32>().unwrap_or(0);
+                let description = details.get(1).unwrap();
+                result.push_back((name.clone(), price, description.clone()));
             }
         }
         result
     }
 
-    // Método para actualizar un producto
-    pub fn update_product(env: Env, name: String, new_quantity: i32, new_price: i32) {
-        let key = symbol_short!("products");
-        let mut products: Map<String, Vec<i32>> = env.storage().persistent().get(&key).unwrap_or(Map::new(&env));
-        if products.contains_key(name.clone()) {
-            products.set(name.clone(), vec![&env, new_quantity, new_price]);
-            env.storage().persistent().set(&key, &products);
+    pub fn update_service(env: Env, name: String, new_price: i32, new_description: String) {
+        let key = symbol_short!("services");
+        let mut services: Map<String, Vec<String>> = env.storage().persistent().get(&key).unwrap_or(Map::new(&env));
+        if services.contains_key(name.clone()) {
+            services.set(name.clone(), vec![&env, new_price.to_string(&env), new_description]);
+            env.storage().persistent().set(&key, &services);
         }
     }
 
-    // Método para eliminar un producto
-    pub fn delete_product(env: Env, name: String) {
-        let key = symbol_short!("products");
-        let mut products: Map<String, Vec<i32>> = env.storage().persistent().get(&key).unwrap_or(Map::new(&env));
-        if products.contains_key(name.clone()) {
-            products.remove(name.clone());
-            env.storage().persistent().set(&key, &products);
+
+    pub fn delete_service(env: Env, name: String) {
+        let key = symbol_short!("services");
+        let mut services: Map<String, Vec<String>> = env.storage().persistent().get(&key).unwrap_or(Map::new(&env));
+        if services.contains_key(name.clone()) {
+            services.remove(name.clone());
+            env.storage().persistent().set(&key, &services);
         }
     }
 
-    // Método ejemplo
+    // Método de prueba
     pub fn hello(env: Env, to: String) -> Vec<String> {
         vec![&env, String::from_str(&env, "Hello"), to]
     }
 }
 
-
-
-
-mod test;
+tests;
